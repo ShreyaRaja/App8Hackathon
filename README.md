@@ -83,7 +83,7 @@
       }
 
       function isYellow(r, g, b) {
-        return colorDistance(r, g, b, 255, 255, 0) < 100;
+        return r > 200 && g > 180 && b < 120;
       }
 
       function analyzeClickColor(x, y) {
