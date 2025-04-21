@@ -15,7 +15,7 @@
  
   Authors in chronological order of contribution:
   Author 1: Timothy E. Riedel
-  Author 2: DIY WB1
+  Author 2: Workblock 1
   
   References:
   http://docs.webplatform.org/wiki/concepts/programming/drawing_images_onto_canvas#Loading_the_image_programmatically
@@ -25,7 +25,7 @@
   http://stackoverflow.com/questions/11929099/html5-canvas-drawimage-ratio-bug-ios
   
   Brief Description of Goal of Code:
-  blah, blah, blah,
+  
  
   Known Issues:
   blah, blah, blah, blah
@@ -76,6 +76,13 @@
   ctx.drawImage(img, sx, sy, sw, sh, dx, dy, dw, dh / vertSquashRatio);
  }
 
+Function showResult(message) { 
+const resultDiv = document.getElementById('result');
+  resultDiv.textContent = message;
+  resultDiv.style.fontSize = '24px';
+  resultDiv.style.fontWeight = 'bold';
+}
+
 /* window.onload necessary to keep javascripts from running before the app gets a chance to load entirely. */
  window.onload = function() {
   var fileInput = document.getElementById('fileInput');
@@ -98,6 +105,63 @@
         
           drawImageIOSFix(context,img, 0, 0, img.naturalWidth, img.naturalHeight, 0, 0, 600, 500);
 
+ // ====================== BEGIN TUBE DETECTION ======================
+
+// Get pixel data from the canvas
+var imgData = context.getImageData(0, 0, canvas.width, canvas.height);
+var pixels = imgData.data;
+
+// Estimated width of one test tube (adjust if needed)
+var tubeWidth = 40;
+// Y-position across the image where tubes sit (middle of the canvas)
+var rowY = 250;
+
+// Color detection helpers
+function isPink(r, g, b) {
+  return r > 200 && g < 100 && b > 150;
+}
+
+function isYellow(r, g, b) {
+  return r > 200 && g > 200 && b < 100;
+}
+
+let pinkCount = 0;
+let yellowCount = 0;
+
+// Loop across the image, assuming tubes are spaced left to right
+for (let x = 0; x < canvas.width; x += tubeWidth) {
+  let pinkPixels = 0;
+  let yellowPixels = 0;
+
+  // Scan a small vertical slice at this horizontal position
+  for (let dx = 0; dx < tubeWidth; dx++) {
+    for (let dy = -10; dy < 10; dy++) {
+      let px = x + dx;
+      let py = rowY + dy;
+      let index = (py * canvas.width + px) * 4;
+      let r = pixels[index];
+      let g = pixels[index + 1];
+      let b = pixels[index + 2];
+
+      if (isPink(r, g, b)) pinkPixels++;
+      else if (isYellow(r, g, b)) yellowPixels++;
+    }
+  }
+
+  // If enough pixels in the area are pink/yellow, count this "tube"
+  if (pinkPixels > 50) pinkCount++;
+  else if (yellowPixels > 50) yellowCount++;
+}
+
+// Show result on the page
+messageDisplayArea.innerHTML += `<br>Detected ${pinkCount} pink tube(s) and ${yellowCount} yellow tube(s).`;
+
+// ====================== END TUBE DETECTION ======================
+
+<div id=”result” ></div>
+showResult(‘Positive - Color Dectected: Pink’); 
+showResult(‘Negative - Color Dectected: Yellow’); 
+
           /*  +++++++++++++++ BEGIN IMAGE PROCESSING +++++++++++++++ */
           /*  ++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
 
@@ -115,7 +179,7 @@
     } // end of the if statement checking that file is an image
     else
     {
-      // this is what happens if the orignial file selected is not an image file
+      // this is what happens if the original file selected is not an image file
       messageDisplayArea.innerHTML = "File not supported!"
     } // end of the else statement if file in NOT an image
   }); // end of the fileInput.addEventListener function
