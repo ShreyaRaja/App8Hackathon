@@ -94,23 +94,27 @@
       function isYellow(r, g, b) {
         return r > 200 && g > 180 && b < 120;
       }
-
+      
+      // Analyzes a 20x20 pixel square region centered at (x,y)
       function analyzeClickColor(x, y) {
         var imgData = context.getImageData(x - 10, y - 10, 20, 20);
         var pixels = imgData.data;
         let pinkPixels = 0;
         let yellowPixels = 0;
-
+        
+        // Loop over every pixel (each pixel = 4 values: R, G, B, A)
         for (let i = 0; i < pixels.length; i += 4) {
           let r = pixels[i];
           let g = pixels[i + 1];
           let b = pixels[i + 2];
-          if (isPink(r, g, b)) pinkPixels++;
-          else if (isYellow(r, g, b)) yellowPixels++;
+          if (isPink(r, g, b)) pinkPixels++; // Count pink pixels
+          else if (isYellow(r, g, b)) yellowPixels++; // Count yellow pixels
         }
-
+        
+        // Display diagnostic pixel counts in the message area
         messageDisplayArea.innerHTML += `<br>Analyzed click region: ${pinkPixels} pink pixels, ${yellowPixels} yellow pixels.`;
 
+        // Display test result based on color dominance
         if (pinkPixels > yellowPixels && pinkPixels > 20) {
           showResult("Negative - Color Detected: Pink");
         } else if (yellowPixels > pinkPixels && yellowPixels > 20) {
@@ -120,33 +124,36 @@
         }
       }
 
+      // Add click listener to canvas to analyze color at click location
       canvas.addEventListener("click", function (evt) {
-        var rect = canvas.getBoundingClientRect();
-        var x = evt.clientX - rect.left;
-        var y = evt.clientY - rect.top;
-        analyzeClickColor(x, y);
+        var rect = canvas.getBoundingClientRect(); // Get canvas position
+        var x = evt.clientX - rect.left; // X coordinate relative to canvas
+        var y = evt.clientY - rect.top; // Y coordinate relative to canvas
+        analyzeClickColor(x, y); // Analyze colors at click
       });
 
+      // Listen for file upload from user
       fileInput.addEventListener('change', function () {
-        var file = fileInput.files[0];
-        var imageType = /image.*/;
+        var file = fileInput.files[0]; // Get selected file
+        var imageType = /image.*/; // Regex for image MIME types
 
         if (file.type.match(imageType)) {
-          var reader = new FileReader();
+          var reader = new FileReader(); // FileReader to read file contents
           reader.onload = function (e) {
             messageDisplayArea.innerHTML = "You picked an image! Click a tube to analyze its color.";
-            var img = new Image();
+            var img = new Image(); // Create an image element
 
             img.onload = function () {
-              uploadedImage = img;
+              uploadedImage = img; // Save image globally
+              // Draw image with iOS fix applied
               drawImageIOSFix(context, img, 0, 0, img.naturalWidth, img.naturalHeight, 0, 0, canvas.width, canvas.height);
             };
-            img.src = reader.result;
+            img.src = reader.result; // Set image source to uploaded file
           };
 
-          reader.readAsDataURL(file);
+          reader.readAsDataURL(file); // Start reading file as base64 string
         } else {
-          messageDisplayArea.innerHTML = "File not supported!";
+          messageDisplayArea.innerHTML = "File not supported!"; // Error message for unsupported file type
         }
       });
     };
@@ -154,30 +161,37 @@
 </head>
 
 <body>
+  <!-- jQuery Mobile layout for page -->
   <div data-role="page">
     <div data-role="header">
-      <h1>Workblock Hackathon!</h1>
-    </div><!-- /header -->
+      <h1>Workblock Hackathon!</h1> <!-- Page heading -->
+    </div>
 
     <div data-role="content">
       <h2>LAMP test results interpreter</h2>
       <div>
+      <!-- File input with styled orange background -->
         Imput your image of your tubes and click the liquid of sample you want to interpret:
         <input type="file" id="fileInput" style="background-color: #FF6600;">
       </div>
+      
+      <!-- Areas for messages and result -->
       <div id="messageDisplayArea"></div>
       <div id="result"></div>
 
+      <!-- Canvas for displaying uploaded image -->
       <canvas id="myCanvas" width="600" height="500" style="border:1px solid #d3d3d3;"></canvas>
+      
+      <!-- Draw default text on canvas before image upload -->
       <script>
-        context.font = '20pt Calibri';
-        context.fillStyle = "black";
-        context.fillText("Original image will go here", 10, 20);
+        context.font = '20pt Calibri'; // Set font style
+        context.fillStyle = "black"; // Set font color
+        context.fillText("Original image will go here", 10, 20); // Placeholder text
       </script>
     </div><!-- /content -->
 
     <div data-role="footer" data-position="fixed">
-      <p>DIY Diagnostics</p>
+      <p>DIY Diagnostics</p> <!-- Footer text -->
     </div><!-- /footer -->
   </div><!-- /page -->
 </body>
