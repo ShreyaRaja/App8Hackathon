@@ -67,12 +67,56 @@
 
     // window.onload necessary to keep JavaScripts from running before the app loads entirely
     window.onload = function () {
-
       canvas = document.getElementById('myCanvas');
       context = canvas.getContext("2d");
 
       var fileInput = document.getElementById('fileInput');
       var messageDisplayArea = document.getElementById('messageDisplayArea');
+      var uploadedImage = null;
+
+      function colorDistance(r1, g1, b1, r2, g2, b2) {
+        return Math.sqrt((r1 - r2) ** 2 + (g1 - g2) ** 2 + (b1 - b2) ** 2);
+      }
+
+      function isPink(r, g, b) {
+        return colorDistance(r, g, b, 255, 105, 180) < 100;
+      }
+
+      function isYellow(r, g, b) {
+        return colorDistance(r, g, b, 255, 255, 0) < 100;
+      }
+
+      function analyzeClickColor(x, y) {
+        var imgData = context.getImageData(x - 10, y - 10, 20, 20);
+        var pixels = imgData.data;
+        let pinkPixels = 0;
+        let yellowPixels = 0;
+
+        for (let i = 0; i < pixels.length; i += 4) {
+          let r = pixels[i];
+          let g = pixels[i + 1];
+          let b = pixels[i + 2];
+          if (isPink(r, g, b)) pinkPixels++;
+          else if (isYellow(r, g, b)) yellowPixels++;
+        }
+
+        messageDisplayArea.innerHTML += `<br>Analyzed click region: ${pinkPixels} pink pixels, ${yellowPixels} yellow pixels.`;
+
+        if (pinkPixels > yellowPixels && pinkPixels > 20) {
+          showResult("Positive - Color Detected: Pink");
+        } else if (yellowPixels > pinkPixels && yellowPixels > 20) {
+          showResult("Negative - Color Detected: Yellow");
+        } else {
+          showResult("No significant color detected.");
+        }
+      }
+
+      canvas.addEventListener("click", function (evt) {
+        var rect = canvas.getBoundingClientRect();
+        var x = evt.clientX - rect.left;
+        var y = evt.clientY - rect.top;
+        analyzeClickColor(x, y);
+      });
 
       fileInput.addEventListener('change', function () {
         var file = fileInput.files[0];
@@ -81,76 +125,12 @@
         if (file.type.match(imageType)) {
           var reader = new FileReader();
           reader.onload = function (e) {
-            messageDisplayArea.innerHTML = "You picked an image!";
+            messageDisplayArea.innerHTML = "You picked an image! Click a tube to analyze its color.";
             var img = new Image();
 
             img.onload = function () {
+              uploadedImage = img;
               drawImageIOSFix(context, img, 0, 0, img.naturalWidth, img.naturalHeight, 0, 0, canvas.width, canvas.height);
-
-              // ====================== BEGIN TUBE DETECTION ======================
-              var imgData = context.getImageData(0, 0, canvas.width, canvas.height);
-              var pixels = imgData.data;
-
-              var tubeWidth = 65; // Adjusted for tighter tube bounds
-              var tubeSpacing = 10;
-              var startX = 50; // Adjusted to better align with image
-              var rowY = Math.floor(canvas.height * 0.65); // Better estimate of where colors appear
-
-              function colorDistance(r1, g1, b1, r2, g2, b2) {
-                return Math.sqrt((r1 - r2) ** 2 + (g1 - g2) ** 2 + (b1 - b2) ** 2);
-              }
-
-              function isPink(r, g, b) {
-                return colorDistance(r, g, b, 255, 105, 180) < 100;
-              }
-
-              function isYellow(r, g, b) {
-                return colorDistance(r, g, b, 255, 255, 0) < 100;
-              }
-
-              let pinkCount = 0;
-              let yellowCount = 0;
-
-              for (let i = 0; i < 8; i++) {
-                let x = startX + i * (tubeWidth + tubeSpacing);
-                let pinkPixels = 0;
-                let yellowPixels = 0;
-
-                // Visual debugging: draw rectangle for sampled region
-                context.strokeStyle = 'red';
-                context.strokeRect(x, rowY - 20, tubeWidth, 40);
-
-                for (let dx = 0; dx < tubeWidth; dx++) {
-                  for (let dy = -20; dy < 20; dy++) {
-                    let px = x + dx;
-                    let py = rowY + dy;
-                    let index = (py * canvas.width + px) * 4;
-                    let r = pixels[index];
-                    let g = pixels[index + 1];
-                    let b = pixels[index + 2];
-
-                    if (isPink(r, g, b)) pinkPixels++;
-                    else if (isYellow(r, g, b)) yellowPixels++;
-
-                    // Log sample color from first tube for debugging
-                    if (i === 0 && dx % 10 === 0 && dy === 0) {
-                      console.log(`Tube 1 sample at (${px}, ${py}): R=${r}, G=${g}, B=${b}`);
-                    }
-                  }
-                }
-
-                console.log(`Tube ${i + 1}: pinkPixels=${pinkPixels}, yellowPixels=${yellowPixels}`);
-
-                if (pinkPixels > 100) pinkCount++;
-                else if (yellowPixels > 100) yellowCount++;
-              }
-
-              messageDisplayArea.innerHTML += `<br>Detected ${pinkCount} pink tube(s) and ${yellowCount} yellow tube(s).`;
-
-              if (pinkCount > 0) showResult('Positive - Color Detected: Pink');
-              else if (yellowCount > 0) showResult('Negative - Color Detected: Yellow');
-              else showResult('No color detected.');
-              // ====================== END TUBE DETECTION ======================
             };
             img.src = reader.result;
           };
