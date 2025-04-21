@@ -68,6 +68,11 @@
 
     // window.onload necessary to keep JavaScripts from running before the app loads entirely
     window.onload = function () {
+
+       canvas = document.getElementById('myCanvas');
+        context = canvas.getContext("2d");
+
+
       var fileInput = document.getElementById('fileInput');
       var messageDisplayArea = document.getElementById('messageDisplayArea');
 
@@ -164,8 +169,7 @@
 
       <canvas id="myCanvas" width="600" height="500" style="border:1px solid #d3d3d3;"></canvas>
       <script>
-        var canvas = document.getElementById('myCanvas');
-        var context = canvas.getContext("2d");
+
         context.font = '20pt Calibri';
         context.fillStyle = "black";
         context.fillText("Original image will go here", 10, 20);
@@ -179,5 +183,6 @@
 </body>
 
 </html>
+
 
 
