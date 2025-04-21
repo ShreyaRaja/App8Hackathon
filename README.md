@@ -151,9 +151,9 @@
     </div><!-- /header -->
 
     <div data-role="content">
-      <h2>Push button to take picture.</h2>
+      <h2>LAMP test results interpreter</h2>
       <div>
-        Press orange button to create or choose image file:
+        Imput your image of your tubes and click the liquid of sample you want to interprete:
         <input type="file" id="fileInput" style="background-color: #FF6600;">
       </div>
       <div id="messageDisplayArea"></div>
