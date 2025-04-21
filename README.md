@@ -116,6 +116,10 @@
                 let pinkPixels = 0;
                 let yellowPixels = 0;
 
+                // Visual debugging: draw rectangle for sampled region
+                context.strokeStyle = 'red';
+                context.strokeRect(x, rowY - 20, tubeWidth, 40);
+
                 for (let dx = 0; dx < tubeWidth; dx++) {
                   for (let dy = -20; dy < 20; dy++) {
                     let px = x + dx;
@@ -127,8 +131,15 @@
 
                     if (isPink(r, g, b)) pinkPixels++;
                     else if (isYellow(r, g, b)) yellowPixels++;
+
+                    // Log sample color from first tube for debugging
+                    if (i === 0 && dx % 10 === 0 && dy === 0) {
+                      console.log(`Tube 1 sample at (${px}, ${py}): R=${r}, G=${g}, B=${b}`);
+                    }
                   }
                 }
+
+                console.log(`Tube ${i + 1}: pinkPixels=${pinkPixels}, yellowPixels=${yellowPixels}`);
 
                 if (pinkPixels > 100) pinkCount++;
                 else if (yellowPixels > 100) yellowCount++;
