@@ -15,7 +15,7 @@
  
   Authors in chronological order of contribution:
   Author 1: Timothy E. Riedel
-  Author 2: ?????????
+  Author 2: DIY WB1
   
   References:
   http://docs.webplatform.org/wiki/concepts/programming/drawing_images_onto_canvas#Loading_the_image_programmatically
@@ -49,7 +49,7 @@
  function detectVerticalSquash(img) {
   var iw = img.naturalWidth, ih = img.naturalHeight;
   var canvas = document.createElement('canvas');
-  canvas.width = 1;
+  canvas.width = 2;
   canvas.height = ih;
   var ctx = canvas.getContext('2d');
   ctx.drawImage(img, 0, 0);
