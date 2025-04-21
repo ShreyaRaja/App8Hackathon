@@ -1,5 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html> <!-- Declares the document type and version of HTML -->
+<html lang="en"> <!-- Starts the HTML document and sets the language to English -->
 
 <!-- The following code has been developed by students and/or researchers of the Freshman Research Initiative, DIY Diagnostics Stream at The University of Texas at Austin. This code is shared for demonstration purposes and should not be considered a product -- it is for entertainment purposes only. Any user of this code does so at their own risk. Members of the DIY Stream, FRI, and The University of Texas system are not liable for anything related to this code.
 
@@ -18,10 +18,12 @@
 -->
 
 <head>
-  <meta charset="utf-8">
-  <title>Photo Transform</title>
-  <meta name="viewport" content="width=device-width, initial-scale=.7">
-  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta charset="utf-8"> <!-- Sets character encoding to UTF-8 for proper text rendering -->
+  <title>Photo Transform</title> <!-- Sets the title of the web page (shown in browser tab) -->
+  <meta name="viewport" content="width=device-width, initial-scale=.7"> <!-- Responsive scaling for mobile devices -->
+  <meta name="apple-mobile-web-app-capable" content="yes"> <!-- Allows iOS devices to run the app in full-screen -->
+
+  <!-- Include jQuery Mobile CSS and JS libraries for styling and mobile UI support -->
   <link rel="stylesheet" href="https://code.jquery.com/mobile/1.3.2/jquery.mobile-1.3.2.min.css" />
   <script src="https://code.jquery.com/jquery-1.9.1.min.js"></script>
   <script src="https://code.jquery.com/mobile/1.3.2/jquery.mobile-1.3.2.min.js"></script>
@@ -32,32 +34,36 @@
 
     // Fix for iPhone photo squish bug
     function detectVerticalSquash(img) {
-      var iw = img.naturalWidth, ih = img.naturalHeight;
-      var canvas = document.createElement('canvas');
-      canvas.width = 2;
+      var iw = img.naturalWidth, ih = img.naturalHeight; //Get's images natural dimensions
+      var canvas = document.createElement('canvas'); // Create temporary canvas
+      canvas.width = 2; // Narrow canvas for sampling
       canvas.height = ih;
       var ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0);
-      var data = ctx.getImageData(0, 0, 1, ih).data;
+      ctx.drawImage(img, 0, 0); // Draw the image to the canvas
+      var data = ctx.getImageData(0, 0, 1, ih).data; // Get pixel data from a 1-pixel-wide column
+
+      //Binary search for non-transparent pixel from the bottom
       var sy = 0, ey = ih, py = ih;
       while (py > sy) {
-        var alpha = data[(py - 1) * 4 + 3];
+        var alpha = data[(py - 1) * 4 + 3]; // Alpha value of current pixel
         if (alpha === 0) {
           ey = py;
         } else {
           sy = py;
         }
-        py = (ey + sy) >> 1;
+        py = (ey + sy) >> 1; // Midpoint
       }
       var ratio = (py / ih);
-      return (ratio === 0) ? 1 : ratio;
+      return (ratio === 0) ? 1 : ratio; // Return squash ration, default to 1
     }
 
+    // Draws image onto canvas while compensating for iOS vertical squash
     function drawImageIOSFix(ctx, img, sx, sy, sw, sh, dx, dy, dw, dh) {
       var vertSquashRatio = detectVerticalSquash(img);
       ctx.drawImage(img, sx, sy, sw, sh, dx, dy, dw, dh / vertSquashRatio);
     }
 
+    //Displays a bold, large-font result message on the screen
     function showResult(message) {
       const resultDiv = document.getElementById('result');
       resultDiv.textContent = message;
@@ -67,21 +73,24 @@
 
     // window.onload necessary to keep JavaScripts from running before the app loads entirely
     window.onload = function () {
-      canvas = document.getElementById('myCanvas');
-      context = canvas.getContext("2d");
+      canvas = document.getElementById('myCanvas'); // Get the canvas element
+      context = canvas.getContext("2d"); //Get 2D drawing context
 
-      var fileInput = document.getElementById('fileInput');
-      var messageDisplayArea = document.getElementById('messageDisplayArea');
-      var uploadedImage = null;
+      var fileInput = document.getElementById('fileInput'); // Image upload input
+      var messageDisplayArea = document.getElementById('messageDisplayArea'); //Message output div 
+      var uploadedImage = null; // Placeholder for uploaded image
 
+      // Calculates distance between two RGB color values
       function colorDistance(r1, g1, b1, r2, g2, b2) {
         return Math.sqrt((r1 - r2) ** 2 + (g1 - g2) ** 2 + (b1 - b2) ** 2);
       }
 
+      // Returns true if color is close to pink (using rough RGB values)
       function isPink(r, g, b) {
         return colorDistance(r, g, b, 255, 105, 180) < 100;
       }
 
+      // Returns true if color matches yellow within certain thresholds
       function isYellow(r, g, b) {
         return r > 200 && g > 180 && b < 120;
       }
