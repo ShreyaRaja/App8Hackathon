@@ -153,7 +153,7 @@
     <div data-role="content">
       <h2>LAMP test results interpreter</h2>
       <div>
-        Imput your image of your tubes and click the liquid of sample you want to interprete:
+        Imput your image of your tubes and click the liquid of sample you want to interpret:
         <input type="file" id="fileInput" style="background-color: #FF6600;">
       </div>
       <div id="messageDisplayArea"></div>
