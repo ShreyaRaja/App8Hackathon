@@ -103,9 +103,9 @@
         messageDisplayArea.innerHTML += `<br>Analyzed click region: ${pinkPixels} pink pixels, ${yellowPixels} yellow pixels.`;
 
         if (pinkPixels > yellowPixels && pinkPixels > 20) {
-          showResult("Positive - Color Detected: Pink");
+          showResult("Negative - Color Detected: Pink");
         } else if (yellowPixels > pinkPixels && yellowPixels > 20) {
-          showResult("Negative - Color Detected: Yellow");
+          showResult("Positive - Color Detected: Yellow");
         } else {
           showResult("No significant color detected.");
         }
