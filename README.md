@@ -1,4 +1,3 @@
-# App8Hackathon
 <!DOCTYPE html>
 <html lang="en">
 
@@ -69,9 +68,8 @@
     // window.onload necessary to keep JavaScripts from running before the app loads entirely
     window.onload = function () {
 
-       canvas = document.getElementById('myCanvas');
-        context = canvas.getContext("2d");
-
+      canvas = document.getElementById('myCanvas');
+      context = canvas.getContext("2d");
 
       var fileInput = document.getElementById('fileInput');
       var messageDisplayArea = document.getElementById('messageDisplayArea');
@@ -93,18 +91,21 @@
               var imgData = context.getImageData(0, 0, canvas.width, canvas.height);
               var pixels = imgData.data;
 
-              // These can be adjusted based on the image characteristics
-              var tubeWidth = 75; // Width of each tube
-              var tubeSpacing = 10; // Spacing between tubes
-              var startX = 20; // Starting x position
-              var rowY = canvas.height - 50; // Sample row y-position (bottom of tubes)
+              var tubeWidth = 65; // Adjusted for tighter tube bounds
+              var tubeSpacing = 10;
+              var startX = 50; // Adjusted to better align with image
+              var rowY = Math.floor(canvas.height * 0.65); // Better estimate of where colors appear
+
+              function colorDistance(r1, g1, b1, r2, g2, b2) {
+                return Math.sqrt((r1 - r2) ** 2 + (g1 - g2) ** 2 + (b1 - b2) ** 2);
+              }
 
               function isPink(r, g, b) {
-                return r > 180 && g < 100 && b > 150;
+                return colorDistance(r, g, b, 255, 105, 180) < 100;
               }
 
               function isYellow(r, g, b) {
-                return r > 180 && g > 180 && b < 120;
+                return colorDistance(r, g, b, 255, 255, 0) < 100;
               }
 
               let pinkCount = 0;
@@ -116,7 +117,7 @@
                 let yellowPixels = 0;
 
                 for (let dx = 0; dx < tubeWidth; dx++) {
-                  for (let dy = -10; dy < 10; dy++) {
+                  for (let dy = -20; dy < 20; dy++) {
                     let px = x + dx;
                     let py = rowY + dy;
                     let index = (py * canvas.width + px) * 4;
@@ -169,7 +170,6 @@
 
       <canvas id="myCanvas" width="600" height="500" style="border:1px solid #d3d3d3;"></canvas>
       <script>
-
         context.font = '20pt Calibri';
         context.fillStyle = "black";
         context.fillText("Original image will go here", 10, 20);
@@ -183,6 +183,3 @@
 </body>
 
 </html>
-
-
-
